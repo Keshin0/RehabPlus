@@ -12,6 +12,9 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use App\Filters\AuthFilter;
+use App\Filters\RoleFilter;
+use App\Filters\ApiAuthFilter;
 
 class Filters extends BaseFilters
 {
@@ -34,6 +37,9 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        'auth'          => AuthFilter::class,
+        'role'          => RoleFilter::class,
+        'apiauth'       => ApiAuthFilter::class,
     ];
 
     /**
@@ -72,9 +78,7 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
+            'csrf',
         ],
         'after' => [
             // 'honeypot',
