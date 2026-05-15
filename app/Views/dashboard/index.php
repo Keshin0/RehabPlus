@@ -1,175 +1,364 @@
 <?php $pageTitle = 'Dashboard – RehabPlus'; ?>
 <?= view('layouts/header') ?>
 
-<?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i><?= session()->getFlashdata('success') ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<?php endif; ?>
-
 <div class="d-flex justify-content-between align-items-center mb-4">
+
     <div>
-        <p class="page-title"><i class="bi bi-speedometer2 me-2 text-cyan" style="color:#0e9aaa;"></i>Dashboard</p>
-        <p class="page-subtitle mb-0">Clinical overview — <?= date('F j, Y') ?></p>
+
+        <h2 class="page-title mb-1">
+            RehabPlus Dashboard
+        </h2>
+
+        <p class="page-subtitle mb-0">
+            Physical Therapy Recovery Monitoring
+        </p>
+
     </div>
-    <a href="<?= site_url('patients/create') ?>" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
-        <i class="bi bi-plus-lg"></i>Add Patient
+
+    <a href="<?= site_url('patients/create') ?>"
+       class="btn btn-primary d-flex align-items-center gap-2">
+
+        <i class="bi bi-plus-lg"></i>
+
+        Add Patient
+
     </a>
+
 </div>
 
-<!-- Summary Cards -->
-<div class="row g-3 mb-4">
+<!-- STAT CARDS -->
+
+<div class="row g-4 mb-4">
+
     <div class="col-md-4">
-        <div class="card card-stat patients shadow-sm p-3">
+
+        <div class="card p-4">
+
             <div class="d-flex justify-content-between align-items-center">
+
                 <div>
-                    <div class="text-muted small mb-1">Total Patients</div>
-                    <div class="fs-2 fw-bold text-primary"><?= $totalPatients ?></div>
+
+                    <div class="text-secondary mb-2">
+                        Total Patients
+                    </div>
+
+                    <div class="display-5 fw-bold text-info">
+                        <?= $totalPatients ?>
+                    </div>
+
                 </div>
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:#e8f0fe;">
-                    <i class="bi bi-people-fill fs-4 text-primary"></i>
-                </div>
+
+                <i class="bi bi-people-fill fs-1 text-info"></i>
+
             </div>
+
         </div>
+
     </div>
+
     <div class="col-md-4">
-        <div class="card card-stat compliance shadow-sm p-3">
+
+        <div class="card p-4">
+
             <div class="d-flex justify-content-between align-items-center">
+
                 <div>
-                    <div class="text-muted small mb-1">Avg. Compliance Rate</div>
-                    <div class="fs-2 fw-bold text-success"><?= $avgCompliance ?>%</div>
+
+                    <div class="text-secondary mb-2">
+                        Avg Compliance
+                    </div>
+
+                    <div class="display-5 fw-bold text-success">
+                        <?= $avgCompliance ?>%
+                    </div>
+
                 </div>
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:#e6f4ea;">
-                    <i class="bi bi-check2-circle fs-4 text-success"></i>
-                </div>
+
+                <i class="bi bi-clipboard2-check-fill fs-1 text-success"></i>
+
             </div>
+
         </div>
+
     </div>
+
     <div class="col-md-4">
-        <div class="card card-stat pain shadow-sm p-3">
+
+        <div class="card p-4">
+
             <div class="d-flex justify-content-between align-items-center">
+
                 <div>
-                    <div class="text-muted small mb-1">Avg. Pain Level (0–10)</div>
-                    <div class="fs-2 fw-bold text-danger"><?= $avgPain ?></div>
+
+                    <div class="text-secondary mb-2">
+                        Avg Pain Level
+                    </div>
+
+                    <div class="display-5 fw-bold text-danger">
+                        <?= $avgPain ?>
+                    </div>
+
                 </div>
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:#fce8e8;">
-                    <i class="bi bi-heart-pulse-fill fs-4 text-danger"></i>
-                </div>
+
+                <i class="bi bi-heart-pulse-fill fs-1 text-danger"></i>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
-<!-- Patient Recovery Overview -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-table me-2" style="color:#0e9aaa;"></i>Patient Recovery Overview</span>
-        <a href="<?= site_url('patients') ?>" class="btn btn-sm btn-outline-secondary">View All</a>
+<!-- CHARTS -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-8">
+
+        <div class="card">
+
+            <div class="card-header">
+                Recovery Analytics
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="recoveryChart"></canvas>
+
+            </div>
+
+        </div>
+
     </div>
+
+    <div class="col-lg-4">
+
+        <div class="card">
+
+            <div class="card-header">
+                Patient Conditions
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="conditionChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PATIENT TABLE -->
+
+<div class="card">
+
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+        <span>
+            Patient Recovery Overview
+        </span>
+
+        <div class="input-group" style="width:250px;">
+
+            <span class="input-group-text">
+                <i class="bi bi-search"></i>
+            </span>
+
+            <input type="text"
+                   id="patientSearch"
+                   class="form-control"
+                   placeholder="Search patient...">
+
+        </div>
+
+    </div>
+
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
+
+        <table class="table table-hover align-middle mb-0"
+               id="patientsTable">
+
+            <thead>
+
                 <tr>
+
                     <th>Patient</th>
                     <th>Condition</th>
                     <th>Sessions</th>
-                    <th style="width:180px">Compliance</th>
-                    <th>Avg. Pain</th>
+                    <th>Compliance</th>
+                    <th>Pain</th>
                     <th>Recovery</th>
                     <th></th>
+
                 </tr>
+
             </thead>
+
             <tbody>
-            <?php if (empty($patientStats)): ?>
-                <tr><td colspan="7" class="text-center text-muted py-5">
-                    <i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>No data available.
-                </td></tr>
-            <?php else: ?>
-                <?php foreach ($patientStats as $p):
-                    $compliance = (float)($p['compliance_rate'] ?? 0);
-                    $pain       = (float)($p['avg_pain'] ?? 0);
-                    $recovery   = (float)($p['recovery_score'] ?? 0);
-                    $barClass   = $compliance >= 80 ? 'bg-success' : ($compliance >= 50 ? 'bg-warning' : 'bg-danger');
-                    $painClass  = $pain <= 3 ? 'badge-pain-low' : ($pain <= 6 ? 'badge-pain-mid' : 'badge-pain-high');
-                ?>
+
+            <?php foreach ($patientStats as $p): ?>
+
                 <tr>
+
                     <td>
+
                         <div class="d-flex align-items-center gap-2">
-                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold"
-                                  style="width:32px;height:32px;font-size:.75rem;background:#0e9aaa;">
-                                <?= strtoupper(substr($p['name'], 0, 1)) ?>
-                            </span>
-                            <a href="<?= site_url('patients/' . $p['id']) ?>" class="fw-semibold text-decoration-none text-dark"><?= esc($p['name']) ?></a>
-                        </div>
-                    </td>
-                    <td class="text-muted small"><?= esc($p['condition']) ?></td>
-                    <td><?= $p['total_sessions'] ?></td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="progress flex-grow-1">
-                                <div class="progress-bar <?= $barClass ?>" style="width:<?= min($compliance,100) ?>%"></div>
+
+                            <div class="rounded-circle bg-info text-dark fw-bold d-flex align-items-center justify-content-center"
+                                 style="width:38px;height:38px;">
+
+                                <?= strtoupper(substr($p['name'],0,1)) ?>
+
                             </div>
-                            <span class="small fw-semibold"><?= $compliance ?>%</span>
+
+                            <?= esc($p['name']) ?>
+
                         </div>
+
                     </td>
-                    <td><span class="badge <?= $painClass ?>"><?= $pain ?> / 10</span></td>
+
+                    <td><?= esc($p['condition']) ?></td>
+
+                    <td><?= $p['total_sessions'] ?></td>
+
                     <td>
-                        <?php if ($recovery >= 60): ?>
-                            <span class="text-success fw-semibold small"><i class="bi bi-arrow-up-circle-fill me-1"></i><?= $recovery ?></span>
-                        <?php elseif ($recovery >= 30): ?>
-                            <span class="text-warning fw-semibold small"><i class="bi bi-dash-circle-fill me-1"></i><?= $recovery ?></span>
-                        <?php else: ?>
-                            <span class="text-danger fw-semibold small"><i class="bi bi-arrow-down-circle-fill me-1"></i><?= $recovery ?></span>
-                        <?php endif; ?>
+
+                        <div class="progress"
+                             style="height:8px;">
+
+                            <div class="progress-bar bg-info"
+                                 style="width:<?= min($p['compliance_rate'],100) ?>%">
+
+                            </div>
+
+                        </div>
+
+                        <small>
+                            <?= $p['compliance_rate'] ?>%
+                        </small>
+
                     </td>
-                    <td><a href="<?= site_url('patients/' . $p['id']) ?>" class="btn btn-sm btn-outline-secondary">View</a></td>
+
+                    <td>
+
+                        <span class="badge bg-warning text-dark">
+
+                            <?= $p['avg_pain'] ?>/10
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="text-success fw-semibold">
+
+                            <?= $p['recovery_score'] ?>%
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <a href="<?= site_url('patients/' . $p['id']) ?>"
+                           class="btn btn-sm btn-outline-secondary">
+
+                            View
+
+                        </a>
+
+                    </td>
+
                 </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
+
+            <?php endforeach; ?>
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>
 
-<!-- Recent Exercise Records -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white fw-semibold">
-        <i class="bi bi-clock-history me-2" style="color:#0e9aaa;"></i>Recent Exercise Records
-    </div>
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Patient</th>
-                    <th>Exercise</th>
-                    <th>Sets (Done / Rx)</th>
-                    <th>Pain Level</th>
-                    <th>Recorded At</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php if (empty($recentRecords)): ?>
-                <tr><td colspan="5" class="text-center text-muted py-5">
-                    <i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>No records yet.
-                </td></tr>
-            <?php else: ?>
-                <?php foreach ($recentRecords as $r):
-                    $pain      = (int)$r['pain_level'];
-                    $painClass = $pain <= 3 ? 'badge-pain-low' : ($pain <= 6 ? 'badge-pain-mid' : 'badge-pain-high');
-                ?>
-                <tr>
-                    <td><a href="<?= site_url('patients/' . $r['patient_id']) ?>" class="text-decoration-none fw-semibold"><?= esc($r['patient_name']) ?></a></td>
-                    <td><?= esc($r['exercise_name']) ?></td>
-                    <td><span class="fw-semibold"><?= $r['sets_completed'] ?></span> / <?= $r['sets_prescribed'] ?></td>
-                    <td><span class="badge <?= $painClass ?>"><?= $pain ?> / 10</span></td>
-                    <td class="text-muted small"><?= date('M j, Y g:i A', strtotime($r['recorded_at'])) ?></td>
-                </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+<script>
+
+// SEARCH
+
+const searchInput = document.getElementById('patientSearch');
+
+const rows = document.querySelectorAll('#patientsTable tbody tr');
+
+searchInput.addEventListener('keyup', function(){
+
+    const search = this.value.toLowerCase();
+
+    rows.forEach(row => {
+
+        const text = row.innerText.toLowerCase();
+
+        row.style.display =
+            text.includes(search)
+            ? ''
+            : 'none';
+
+    });
+
+});
+
+// LINE CHART
+
+new Chart(document.getElementById('recoveryChart'), {
+
+    type:'line',
+
+    data:{
+        labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+
+        datasets:[{
+            label:'Recovery Progress',
+            data:[45,52,60,65,72,80,88],
+
+            borderColor:'#14b8a6',
+
+            backgroundColor:'rgba(20,184,166,.15)',
+
+            fill:true,
+
+            tension:.4
+        }]
+    }
+
+});
+
+// DOUGHNUT
+
+new Chart(document.getElementById('conditionChart'), {
+
+    type:'doughnut',
+
+    data:{
+        labels:['ACL','Rotator','Back Pain','Other'],
+
+        datasets:[{
+            data:[35,25,20,20],
+
+            backgroundColor:[
+                '#14b8a6',
+                '#0ea5e9',
+                '#8b5cf6',
+                '#f59e0b'
+            ]
+        }]
+    }
+
+});
+
+</script>
 
 <?= view('layouts/footer') ?>
